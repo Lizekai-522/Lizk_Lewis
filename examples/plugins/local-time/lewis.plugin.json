@@ -1,0 +1,19 @@
+{
+  "id": "local-time",
+  "name": "本地时间",
+  "permissions": [],
+  "settings": {},
+  "ui": [
+    {
+      "type": "text",
+      "text": "显示电脑当前本地时间。"
+    }
+  ],
+  "voiceCommands": [
+    {
+      "phrase": "现在本地时间",
+      "tool": "get_time",
+      "args": {}
+    }
+  ]
+}

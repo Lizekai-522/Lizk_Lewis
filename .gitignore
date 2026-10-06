@@ -1,0 +1,26 @@
+# Dependencies and runtime data
+node_modules/
+.venv/
+.pet-venv/
+__pycache__/
+*.pyc
+data/
+dist*/
+logs/
+attachments/
+.ui-profile/
+.env
+.env.*
+!.env.example
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+*.pdb
+# User-specific configuration
+**/settings.json
+**/wechat-reader.json
+**/credentials.json
+**/config.json

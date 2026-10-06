@@ -1,0 +1,106 @@
+/* Color-only sci-fi skin. The existing workspace layout and controls stay shared. */
+:root[data-theme="tech"] {
+  color-scheme: dark;
+  --bg: #070f1c;
+  --panel: #0c1b2b;
+  --raised: #142b40;
+  --line: #28475d;
+  --accent: #63e3f5;
+  --tint: #14384a;
+  --text: #e1f3ff;
+  --muted: #9eb4c8;
+  --danger: #ffb2b9;
+}
+[data-theme="tech"] .sidebar,
+[data-theme="tech"] .desktop-titlebar,
+[data-theme="tech"] .topbar {
+  background: #0c1b2b;
+}
+[data-theme="tech"] .topbar {
+  border-bottom: 1px solid var(--line);
+}
+[data-theme="tech"] .sidebar-logo {
+  color: var(--accent);
+  text-shadow: 0 0 20px #63e3f526;
+}
+[data-theme="tech"] .sidebar-icon.active,
+[data-theme="tech"] .settings-nav button.active,
+[data-theme="tech"] #historyList button.active {
+  background: var(--tint);
+  color: var(--accent);
+  box-shadow: inset 2px 0 var(--accent);
+}
+[data-theme="tech"] .input-box {
+  background: #0d2032;
+  border-color: #426c89;
+  box-shadow: 0 6px 28px #00000024;
+}
+[data-theme="tech"] .input-box:focus-within {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 1px #63e3f526,
+    0 6px 28px #00000024;
+}
+[data-theme="tech"] .send-btn,
+[data-theme="tech"] #saveSettingsBtn,
+[data-theme="tech"] #studioRecord,
+[data-theme="tech"] #studioApply {
+  background: var(--accent);
+  color: #061722;
+  border-color: transparent;
+  box-shadow: 0 0 18px #63e3f51f;
+}
+[data-theme="tech"] .send-btn:hover,
+[data-theme="tech"] #saveSettingsBtn:hover,
+[data-theme="tech"] #studioRecord:hover,
+[data-theme="tech"] #studioApply:hover {
+  background: #94edfa;
+}
+[data-theme="tech"] input:not([type="checkbox"]),
+[data-theme="tech"] textarea,
+[data-theme="tech"] select {
+  border-color: #426c89;
+}
+[data-theme="tech"] #messageInput {
+  border: 0;
+}
+[data-theme="tech"] .message.user .message-bubble {
+  background: #102d40;
+  border: 1px solid #28475d;
+}
+[data-theme="tech"] .message-avatar,
+[data-theme="tech"] .welcome-icon {
+  color: var(--accent);
+}
+[data-theme="tech"] .suggestion-card {
+  background: #0d2032;
+  border-color: #28475d;
+}
+[data-theme="tech"] .suggestion-card:hover {
+  border-color: var(--accent);
+}
+[data-theme="tech"] .market-catalog article,
+[data-theme="tech"] .studio-preview,
+[data-theme="tech"] .web-panel {
+  background: #0c1b2b;
+}
+[data-theme="tech"] .page-tabs button[aria-selected="true"],
+[data-theme="tech"] .studio-steps [aria-current] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+[data-theme="tech"] .settings-panel {
+  box-shadow: 0 18px 70px #0009;
+}
+[data-theme="tech"] .overlay.active {
+  background: #030911b3;
+}
+[data-theme="tech"] #visionPanel .camera-frame {
+  border: 1px solid #28475d;
+}
+[data-theme="tech"] button:focus-visible,
+[data-theme="tech"] input:focus-visible,
+[data-theme="tech"] textarea:focus-visible,
+[data-theme="tech"] select:focus-visible {
+  outline-color: var(--accent);
+}

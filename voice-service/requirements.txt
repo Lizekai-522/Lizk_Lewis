@@ -1,0 +1,17 @@
+# 李维斯 Lewis - 语音服务依赖
+flask>=3.0.0
+flask-cors>=4.0.0
+edge-tts>=6.1.0
+torch==2.8.0
+torchaudio==2.8.0
+funasr==1.4.16
+modelscope>=1.0.0
+silero-vad>=5.0.0
+# 浏览器负责录音，不需要 PyAudio；音量技能使用 Windows Core Audio。
+pycaw>=20240210; sys_platform == 'win32'
+comtypes>=1.4; sys_platform == 'win32'
+soundfile>=0.12.0
+numpy>=1.26,<3
+transformers>=4.40,<5
+
+sherpa-onnx==1.13.8

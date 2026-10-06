@@ -1,0 +1,13 @@
+'use strict';
+const path = require('node:path');
+const fs = require('node:fs');
+const { spawnSync } = require('node:child_process');
+const root = path.resolve(__dirname, '..');
+const framework = path.join(process.env.WINDIR || 'C:/Windows', 'Microsoft.NET/Framework64/v4.0.30319');
+const wpf = path.join(framework, 'WPF');
+const compiler = path.join(framework, 'csc.exe');
+if (!fs.existsSync(compiler)) throw new Error('需要 Windows 的 .NET Framework C# 编译器');
+const args = ['/nologo', '/target:exe', '/platform:x64', '/optimize+', '/out:' + path.join(root, 'native/WeChatBridge.exe'), '/reference:System.Web.Extensions.dll', ...['UIAutomationClient.dll', 'UIAutomationTypes.dll', 'WindowsBase.dll'].map(name => '/reference:' + path.join(wpf, name)), path.join(root, 'native/WeChatBridge.cs'), path.join(root, 'native/WeChatMouse.cs')];
+const result = spawnSync(compiler, args, { stdio: 'inherit', windowsHide: true, shell: false });
+if (result.error) throw result.error;
+process.exitCode = result.status || 0;

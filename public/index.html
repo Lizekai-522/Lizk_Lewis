@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="tech">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>李维斯 LEWIS - 桌面AI助手</title>
+    <link rel="stylesheet" href="/vendor/icons/regular/style.css" />
+    <link rel="stylesheet" href="/css/lewis.css?v=1.7.6" />
+    <link rel="stylesheet" href="/css/workspace.css?v=1.7.6" />
+    <link rel="stylesheet" href="/css/tech.css?v=1.7.6" />
+  </head>
+  <body>
+    <header class="desktop-titlebar" hidden="">
+      <span>Lewis</span>
+      <nav aria-label="应用菜单">
+        <details name="lewis-app-menu">
+          <summary>文件</summary>
+          <div>
+            <button data-menu="newChatBtn">新建对话</button
+            ><a href="/api/data/export" download="">导出对话</a>
+          </div>
+        </details>
+        <details name="lewis-app-menu">
+          <summary>视图</summary>
+          <div>
+            <button data-menu="webPanelBtn">网页面板</button
+            ><button data-menu="settingsBtn">设置</button>
+          </div>
+        </details>
+        <details name="lewis-app-menu">
+          <summary>帮助</summary>
+          <div>
+            <button id="helpBtn">使用帮助</button
+            ><button id="diagnosticMenu">诊断与日志</button>
+          </div>
+        </details>
+        <button
+          id="speechToggle"
+          class="titlebar-speech"
+          type="button"
+          aria-pressed="true"
+          aria-label="关闭Lewis播报"
+        >
+          <i class="ph ph-speaker-high" aria-hidden="true"></i
+          ><span>播报开</span>
+        </button>
+      </nav>
+    </header>
+    <div class="app">
+      <!-- 侧边栏 -->
+      <div class="sidebar">
+        <div class="sidebar-logo">Lewis</div>
+        <button
+          class="sidebar-icon"
+          id="newChatBtn"
+          title="新对话"
+          aria-label="新对话"
+        >
+          <i class="ph ph-plus" aria-hidden="true"></i>
+          <span>新建对话</span></button
+        ><button
+          type="button"
+          aria-label="对话"
+          class="sidebar-icon active"
+          title="对话"
+        >
+          <i class="ph ph-chat-circle" aria-hidden="true"></i>
+          <span>对话</span>
+        </button>
+        <button
+          type="button"
+          aria-label="技能"
+          class="sidebar-icon"
+          title="技能"
+        >
+          <i class="ph ph-lightning" aria-hidden="true"></i>
+          <span>技能</span>
+        </button>
+        <button
+          type="button"
+          aria-label="插件广场"
+          class="sidebar-icon"
+          title="插件广场"
+          id="pluginMarketBtn"
+        >
+          <i class="ph ph-puzzle-piece" aria-hidden="true"></i>
+          <span>插件广场</span>
+        </button>
+        <button id="gestureStudioBtn" class="sidebar-icon" type="button">
+          <i class="ph ph-hand" aria-hidden="true"></i><span>手势工作室</span>
+        </button>
+        <section class="sidebar-history">
+          <h2>历史对话</h2>
+          <select id="historySessions" aria-label="历史对话">
+            <option value="">历史对话</option>
+          </select>
+        </section>
+        <div class="sidebar-spacer"></div>
+        <button
+          type="button"
+          aria-label="设置"
+          class="sidebar-icon"
+          id="settingsBtn"
+          title="设置"
+        >
+          <i class="ph ph-gear" aria-hidden="true"></i>
+          <span>设置</span>
+        </button>
+      </div>
+
+      <!-- 主区域 -->
+      <div class="main">
+        <div class="corner-decoration corner-tl"></div>
+        <div class="corner-decoration corner-tr"></div>
+
+        <!-- 顶部栏 -->
+        <div class="topbar">
+          <div class="topbar-title">对话</div>
+          <div class="topbar-subtitle">Lewis</div>
+          <div class="topbar-status">
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span>在线</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="visionPanel" class="lewis-panel" hidden="">
+          <button
+            id="cameraFold"
+            class="panel-fold"
+            type="button"
+            aria-expanded="true"
+            aria-label="收起或展开摄像头"
+          >
+            收起摄像头 ▴
+          </button>
+          <div class="camera-frame">
+            <video
+              id="cameraPreview"
+              autoplay=""
+              muted=""
+              playsinline=""
+              width="288"
+            ></video
+            ><canvas id="handOverlay"></canvas>
+          </div>
+        </div>
+
+        <!-- 对话区 -->
+        <div class="chat-area" id="chatArea">
+          <div class="welcome" id="welcome">
+            <div class="welcome-icon">
+              <i class="ph ph-sparkle" aria-hidden="true"></i>
+            </div>
+            <div class="welcome-title">你好，我是李维斯</div>
+            <div class="welcome-subtitle">说出任务，或在下方输入。</div>
+            <div class="welcome-suggestions">
+              <button
+                type="button"
+                class="suggestion-card"
+                onclick="sendSuggestion('帮我写一段Python代码')"
+              >
+                <div class="suggestion-icon">
+                  <i class="ph ph-code" aria-hidden="true"></i>
+                </div>
+                <div class="suggestion-text">帮我写代码</div>
+              </button>
+              <button
+                type="button"
+                class="suggestion-card"
+                onclick="sendSuggestion('今天有什么新闻？')"
+              >
+                <div class="suggestion-icon">
+                  <i class="ph ph-newspaper" aria-hidden="true"></i>
+                </div>
+                <div class="suggestion-text">查最新资讯</div>
+              </button>
+              <button
+                type="button"
+                class="suggestion-card"
+                onclick="sendSuggestion('解释一下什么是神经网络')"
+              >
+                <div class="suggestion-icon">
+                  <i class="ph ph-book-open" aria-hidden="true"></i>
+                </div>
+                <div class="suggestion-text">学习知识</div>
+              </button>
+              <button
+                type="button"
+                class="suggestion-card"
+                onclick="sendSuggestion('给我讲个冷笑话')"
+              >
+                <div class="suggestion-icon">
+                  <i class="ph ph-coffee" aria-hidden="true"></i>
+                </div>
+                <div class="suggestion-text">轻松一下</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lewis-toolbar">
+          <button
+            id="voiceControlsFold"
+            class="panel-fold"
+            type="button"
+            aria-expanded="true"
+            aria-label="收起或展开语音控制"
+          >
+            语音状态 ▾
+          </button>
+          <div class="lewis-controls">
+            <button id="stopSpeechBtn">停止</button
+            ><button id="replayBtn">重播</button
+            ><button id="webPanelBtn">网页</button>
+          </div>
+          <div class="lewis-statuses">
+            <span id="voiceStatus" role="status" aria-live="polite"
+              >语音就绪</span
+            >
+            <span id="contextStatus"></span>
+            <span id="visionChatStatus">摄像头画面尚未发送</span
+            ><span id="toolStatus"></span>
+          </div>
+        </div>
+
+        <!-- 输入区 -->
+        <div class="input-area">
+          <div id="taskProgress" role="status"></div>
+          <details class="task-controls">
+            <summary>任务控制</summary>
+            <div>
+              <button id="cancelTask">取消当前任务</button
+              ><input id="taskSteering" placeholder="补充当前任务指令" /><button
+                id="steerTask"
+              >
+                补充指令
+              </button>
+            </div>
+          </details>
+          <div id="attachmentPreview" aria-label="待发送图片"></div>
+
+          <div class="input-wrapper">
+            <div class="input-box">
+              <textarea
+                id="messageInput"
+                placeholder="给 Lewis 一个任务…"
+                rows="1"
+              ></textarea>
+
+              <div class="input-actions">
+                <details class="composer-attachments">
+                  <summary aria-label="添加附件" title="添加附件">
+                    <i class="ph ph-plus" aria-hidden="true"></i>
+                  </summary>
+                  <div class="attachment-controls">
+                    <input
+                      type="file"
+                      id="chatImages"
+                      accept="image/png,image/jpeg,image/webp"
+                      multiple=""
+                      hidden=""
+                    /><button id="attachImage">添加图片</button
+                    ><button id="attachPhoto">拍照</button
+                    ><button id="attachScreen">截取屏幕</button
+                    ><span id="attachmentStatus" role="status"></span>
+                  </div>
+                </details>
+                <button class="action-btn" id="voiceBtn" title="语音输入">
+                  <i class="ph ph-microphone" aria-hidden="true"></i>
+                </button>
+
+                <button class="send-btn" id="sendBtn">
+                  <i class="ph ph-arrow-up" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="composer-hint">Enter 发送 · Shift + Enter 换行</div>
+        </div>
+      </div>
+      <aside
+        id="webPanel"
+        class="web-panel"
+        hidden=""
+        aria-label="Lewis 网页面板"
+      >
+        <div class="browser-header">
+          <div class="web-panel-head">
+            <strong
+              ><i class="ph ph-browser" aria-hidden="true"></i> 网页</strong
+            >
+            <div class="browser-header-actions">
+              <button
+                id="webPreferences"
+                class="browser-icon"
+                title="网页设置"
+                aria-label="网页设置"
+              >
+                <i class="ph ph-gear" aria-hidden="true"></i></button
+              ><button
+                id="webClose"
+                class="browser-icon"
+                title="收起网页"
+                aria-label="收起网页面板"
+              >
+                <i class="ph ph-x" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div class="browser-navigation">
+            <button
+              id="webBack"
+              class="browser-icon"
+              title="后退"
+              aria-label="后退"
+            >
+              <i class="ph ph-arrow-left" aria-hidden="true"></i></button
+            ><button
+              id="webForward"
+              class="browser-icon"
+              title="前进"
+              aria-label="前进"
+            >
+              <i class="ph ph-arrow-right" aria-hidden="true"></i></button
+            ><button
+              id="webReload"
+              class="browser-icon"
+              title="刷新"
+              aria-label="刷新"
+            >
+              <i class="ph ph-arrow-clockwise" aria-hidden="true"></i>
+            </button>
+            <form id="webNavigate">
+              <input
+                id="webAddress"
+                aria-label="网页地址"
+                placeholder="输入网址"
+                autocomplete="off"
+              /><button
+                class="browser-icon"
+                type="submit"
+                title="前往"
+                aria-label="前往"
+              >
+                <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+              </button>
+            </form>
+          </div>
+          <div class="browser-tools">
+            <details class="browser-more">
+              <summary aria-label="更多网页操作" title="更多操作">
+                <i class="ph ph-dots-three" aria-hidden="true"></i>
+              </summary>
+              <div class="browser-more-menu">
+                <button id="webStop">停止加载</button
+                ><button id="webMute">开启网页声音</button
+                ><button id="webExternal">在系统浏览器打开</button>
+              </div>
+            </details>
+          </div>
+          <div id="webPageStatus" role="status">等待网页任务</div>
+        </div>
+        <div id="webViewport">
+          <div class="web-empty">
+            <i class="ph ph-browser" aria-hidden="true"></i>
+            <p>网页将在这里显示</p>
+            <small>在桌面版打开网站，Lewis 可读取并操作当前页。</small>
+          </div>
+        </div>
+        <details class="web-observation" id="webObservation">
+          <summary>操作记录与读取内容</summary>
+          <ol id="webActivity"></ol>
+          <div id="webSources"></div>
+          <pre id="webResult"></pre>
+        </details>
+      </aside>
+      <section id="pluginsPage" class="workspace-page" hidden="">
+        <header>
+          <h1>插件</h1>
+          <p>扩展 Lewis 的能力。</p>
+        </header>
+        <nav class="page-tabs" aria-label="插件分类">
+          <button data-plugin-tab="market" aria-selected="true">广场</button
+          ><button data-plugin-tab="installed">已安装</button
+          ><button data-plugin-tab="mcp">外部工具</button>
+        </nav>
+        <section data-plugin-page="market">
+          <section id="pluginMarketPanel">
+            <p>搜索技能，或从 GitHub 仓库和技能网址安装。</p>
+            <div class="market-search">
+              <input
+                id="marketQuery"
+                maxlength="100"
+                placeholder="搜索GitHub技能，例如 weather"
+                aria-label="插件搜索词"
+              /><button id="marketSearch">搜索广场</button>
+            </div>
+            <div id="marketCatalog" class="market-catalog"></div>
+
+            <details id="marketImport">
+              <summary>从 GitHub 或网址安装</summary>
+              <input
+                id="marketSource"
+                placeholder="GitHub仓库 / 技能目录 / ZIP / SKILL.md网址"
+                aria-label="技能下载地址"
+              /><input
+                id="marketRef"
+                maxlength="100"
+                placeholder="可选：指定分支或版本"
+                aria-label="技能版本"
+              /><button id="marketPreview">获取技能列表</button
+              ><select id="marketCandidates" aria-label="下载包内技能"></select>
+              <pre id="marketPreviewText"></pre>
+              <button id="marketInstall" disabled="">安装并应用</button>
+            </details>
+            <p id="marketStatus" role="status"></p>
+            <p>
+              指令技能告诉 Lewis
+              如何完成任务；扩展插件提供额外工具。安装后可在“已安装”中管理。
+            </p>
+          </section>
+        </section>
+        <section data-plugin-page="installed" hidden="">
+          <section>
+            <p>管理已添加的技能和工具。</p>
+            <button id="pluginsReload">刷新列表</button>
+            <details class="plugin-directory">
+              <summary>本机安装位置</summary>
+              <p id="pluginsDirectory"></p>
+            </details>
+            <div id="pluginsList"></div>
+            <div id="pluginCards"></div>
+          </section>
+        </section>
+        <section data-plugin-page="mcp" hidden="">
+          <h2>连接外部工具</h2>
+          <p>填入工具提供的连接信息，保存后 Lewis 就可以使用它。</p>
+          <form id="mcpForm" class="connection-form" novalidate="">
+            <label
+              >工具名称<input
+                id="mcpName"
+                maxlength="100"
+                placeholder="例如：天气助手" /></label
+            ><label
+              >连接方式<select id="mcpTransport">
+                <option value="remote">服务地址</option>
+                <option value="local">本机程序</option>
+              </select></label
+            >
+            <div id="mcpRemoteFields">
+              <label
+                >服务地址<input
+                  id="mcpUrl"
+                  inputmode="url"
+                  placeholder="粘贴工具提供的连接地址" /></label
+              ><label
+                >访问密钥（可选）<input
+                  id="mcpToken"
+                  type="password"
+                  autocomplete="off"
+                  placeholder="仅在工具要求时填写"
+              /></label>
+            </div>
+            <div id="mcpLocalFields" hidden="">
+              <label
+                >程序位置<input
+                  id="mcpCommand"
+                  placeholder="选择工具提供的程序完整路径" /></label
+              ><label
+                >启动参数（可选，每行一个）<textarea
+                  id="mcpArgs"
+                  placeholder="按照工具说明填写，文件路径单独放在一行"
+                ></textarea>
+              </label>
+            </div>
+            <fieldset>
+              <legend>这个工具需要使用哪些能力？</legend>
+              <label
+                ><input type="checkbox" data-mcp-permission="web" />联网</label
+              ><label
+                ><input
+                  type="checkbox"
+                  data-mcp-permission="computer"
+                />电脑操作</label
+              ><label
+                ><input
+                  type="checkbox"
+                  data-mcp-permission="wechat"
+                />微信</label
+              >
+            </fieldset>
+            <label class="connection-toggle"
+              ><input
+                id="mcpEnabled"
+                type="checkbox"
+                checked=""
+              />保存后启用</label
+            >
+            <div class="connection-actions">
+              <button id="mcpConnect" type="submit">保存并连接</button
+              ><button id="mcpCancelEdit" type="button" hidden="">
+                取消修改
+              </button>
+            </div>
+          </form>
+          <details class="connection-advanced">
+            <summary>导入已有配置（高级）</summary>
+            <p>仅在工具提供配置文本时使用。</p>
+            <textarea
+              id="mcpConfig"
+              aria-label="工具配置文本"
+              placeholder="粘贴工具提供的完整配置"
+            ></textarea
+            ><button id="mcpSave">导入配置</button>
+          </details>
+        </section>
+        <p id="pluginsStatus" role="status"></p>
+      </section>
+    </div>
+
+    <div id="skillPanel" class="lewis-panel" hidden="" aria-label="技能管理">
+      <div class="panel-heading">
+        <h2>内置技能</h2>
+        <button id="skillsClose" aria-label="收起技能">收起</button>
+      </div>
+      <p>也可以直接说出任务，由 Lewis 调用。</p>
+      <section class="builtin-section">
+        <h3>打开程序</h3>
+        <button id="notepadBtn">记事本</button
+        ><button id="calculatorBtn">计算器</button>
+        <p id="installedApps"></p>
+      </section>
+      <section class="builtin-section">
+        <h3>天气与音量</h3>
+        <input
+          id="weatherCity"
+          placeholder="城市，例如 Shanghai"
+          value="Shanghai"
+        /><button id="weatherBtn">查天气</button
+        ><input
+          id="volumeValue"
+          type="number"
+          min="0"
+          max="100"
+          value="50"
+        /><button id="volumeBtn">设置音量</button>
+      </section>
+      <section class="builtin-section">
+        <h3>网页</h3>
+        <input id="webQuery" placeholder="搜索内容" /><button id="webSearchBtn">
+          搜索网页</button
+        ><input id="webURL" placeholder="https://example.com" /><select
+          id="webReadMode"
+          aria-label="网页读取模式"
+        >
+          <option value="auto">动态读取</option>
+          <option value="static">静态读取</option></select
+        ><button id="readWebBtn">读取网页</button
+        ><button id="openWebBtn">打开网站</button>
+      </section>
+
+      <details>
+        <summary>任务与提醒</summary>
+        <div id="tasksList"></div>
+        <input id="reminderText" placeholder="提醒内容" /><input
+          id="reminderTime"
+          type="datetime-local"
+        /><button id="reminderAdd">添加定时提醒</button>
+        <p id="tasksStatus" role="status"></p>
+      </details>
+      <details>
+        <summary>长期记忆</summary>
+        <label
+          ><input id="memoryEnabled" type="checkbox" checked="" />
+          从用户明确陈述提取记忆并在对话中引用</label
+        ><select id="memoryCategory">
+          <option value="personal">个人信息</option>
+          <option value="preference">偏好</option>
+          <option value="knowledge">知识</option>
+          <option value="task">任务历史</option></select
+        ><input id="memoryText" maxlength="800" placeholder="记忆内容" /><button
+          id="memoryAdd"
+        >
+          添加记忆
+        </button>
+        <div id="memoryList"></div>
+        <p id="memoryStatus" role="status"></p>
+      </details>
+
+      <section class="builtin-wechat">
+        <h3>微信 · 内置</h3>
+        <p id="wechatAutoStatus" role="status">正在检测微信…</p>
+        <p class="muted">例如：给张三发微信，告诉他我十分钟后到。</p>
+        <button id="wechatStatusBtn">刷新连接</button>
+        <details>
+          <summary>手动读取与发送</summary>
+          <input
+            id="wechatRecipient"
+            placeholder="完整聊天名称"
+            value="文件传输助手"
+          /><button id="wechatReadBtn">读取聊天</button
+          ><textarea
+            id="wechatText"
+            placeholder="明确要发送的文字，最多2000字符"
+            maxlength="2000"
+          ></textarea
+          ><button id="wechatSendBtn">发送微信消息</button>
+        </details>
+      </section>
+    </div>
+    <!-- 语音可视化 -->
+    <div class="voice-visualizer" id="voiceVisualizer">
+      <div class="voice-ring">
+        <div class="voice-icon-center">
+          <i class="ph ph-microphone" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设置面板 -->
+    <div class="overlay" id="overlay"></div>
+    <div
+      class="settings-panel"
+      id="settingsPanel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Lewis 设置"
+    >
+      <div class="settings-title">
+        <span><i class="ph ph-gear" aria-hidden="true"></i> 设置</span>
+        <button class="settings-close" id="settingsClose" aria-label="关闭设置">
+          <i class="ph ph-x" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="settings-layout">
+        <nav class="settings-nav" aria-label="设置分类">
+          <button type="button" data-settings-category="general">通用</button
+          ><button type="button" data-settings-category="model">
+            模型与上下文</button
+          ><button type="button" data-settings-category="voice">语音</button
+          ><button type="button" data-settings-category="vision">
+            视觉与手势</button
+          ><button data-settings-category="browser">网页</button
+          ><button type="button" data-settings-category="wechat">微信</button
+          ><button type="button" data-settings-category="permissions">
+            权限</button
+          ><button type="button" data-settings-category="data">
+            数据与诊断</button
+          ><button type="button" data-settings-category="updates">
+            应用更新
+          </button>
+        </nav>
+        <div class="settings-content">
+          <section data-settings-page="general" hidden="">
+            <h2>通用</h2>
+            <div class="settings-group">
+              <label
+                >桌宠形象<select id="petStyle">
+                  <option value="dafeiyu">大肥鱼 · 三视图桌宠</option>
+                  <option value="classic">Lewis · 原圆形桌宠</option>
+                </select></label
+              ><small
+                >大肥鱼复用 Lewis 的模型、对话和语音，不需要单独填写
+                Key。</small
+              >
+              <p id="petRuntimeStatus" role="status"></p>
+            </div>
+            <div class="settings-group">
+              <label
+                >外观
+                <select id="themeChoice">
+                  <option value="tech">科技蓝</option>
+                  <option value="dark">深色</option>
+                  <option value="light">浅色</option>
+                </select></label
+              >
+            </div>
+            <div class="settings-group">
+              <div class="settings-label">
+                桌宠头像 PNG/JPEG/WebP（最多 1MB）
+              </div>
+              <input
+                id="avatarInput"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+              />
+              <button id="resetAvatarBtn">恢复默认形象</button>
+            </div>
+          </section>
+          <section data-settings-page="model" hidden="">
+            <h2>模型与上下文</h2>
+            <div class="settings-group">
+              <div class="settings-label">API 地址</div>
+              <input
+                type="text"
+                class="settings-input"
+                id="apiBaseUrl"
+                value="https://api.deepseek.com/v1"
+              />
+            </div>
+            <div class="settings-group">
+              <div class="settings-label">API Key</div>
+              <input
+                type="password"
+                class="settings-input"
+                id="apiKey"
+                placeholder="sk-xxxxxxxxxx"
+              />
+            </div>
+            <div class="settings-group">
+              <div class="settings-label">模型名称</div>
+              <input
+                type="text"
+                class="settings-input"
+                id="modelName"
+                value="deepseek-chat"
+              />
+            </div>
+            <div class="settings-group">
+              <div class="settings-label">
+                上下文窗口 tokens（请按模型规格填写）
+              </div>
+              <input
+                class="settings-input"
+                id="contextWindow"
+                type="number"
+                min="4096"
+                max="1000000"
+                value="16384"
+              />
+            </div>
+          </section>
+          <section data-settings-page="voice" hidden="">
+            <h2>语音</h2>
+            <h3>当前监听与播报</h3>
+            <label
+              ><input type="checkbox" id="autoTts" checked="" /> 自动播报</label
+            ><label
+              ><input type="checkbox" id="continuousEnabled" />
+              持续对话（直接说话）</label
+            ><label
+              ><input type="checkbox" id="wakeEnabled" />
+              持续监听“李维斯”</label
+            >
+            <div class="settings-group speech-settings">
+              <h3>说话方式</h3>
+              <label
+                >音色<select id="speechVoice">
+                  <option value="zh-CN-XiaoxiaoNeural">晓晓 · 温和女声</option>
+                  <option value="zh-CN-XiaoyiNeural">晓伊 · 轻快女声</option>
+                  <option value="zh-CN-YunxiNeural">云希 · 清朗男声</option>
+                </select></label
+              ><label
+                >语速微调（%）<input
+                  id="speechRate"
+                  type="number"
+                  min="-25"
+                  max="30"
+                  step="1"
+                  value="6"
+              /></label>
+              <details>
+                <summary>音调微调</summary>
+                <label
+                  >音调（Hz）<input
+                    id="speechPitch"
+                    type="number"
+                    min="-20"
+                    max="20"
+                    step="1"
+                    value="0"
+                /></label>
+              </details>
+              <p class="muted">
+                音色和微调用于本机 Edge 播报；云端播报使用下面配置的服务音色。
+              </p>
+              <button id="speechPreview" type="button">试听一句</button>
+              <p id="speechPreviewStatus" role="status"></p>
+              <div class="settings-group">
+                <label
+                  >唤醒后继续交谈<select id="wakeConversationSeconds">
+                    <option value="0" selected="">
+                      持续交谈，直到主动结束
+                    </option>
+                    <option value="30">空闲 30 秒后待机</option>
+                    <option value="60">空闲 1 分钟后待机</option>
+                    <option value="120">空闲 2 分钟后待机</option>
+                  </select></label
+                >
+                <p class="muted">
+                  喊“李维斯”后先应答，再持续聆听。说“结束对话”回到后台待命；说“Lewis
+                  停下”只停播报。也可以选择空闲后自动待机。
+                </p>
+              </div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-label">语音服务地址</div>
+              <input
+                type="text"
+                class="settings-input"
+                id="voiceServiceUrl"
+                value="http://localhost:5001"
+              />
+            </div>
+            <div class="settings-group">
+              <div class="settings-label">麦克风分段阈值（越小越灵敏）</div>
+              <input
+                class="settings-input"
+                id="micThreshold"
+                type="number"
+                min="0.001"
+                max="0.2"
+                step="0.001"
+                value="0.012"
+              />
+            </div>
+            <div class="settings-group">
+              <button id="voiceHealthBtn">检查语音服务</button>
+            </div>
+            <div class="settings-group">
+              <label
+                ><input id="autoMic" type="checkbox" checked="" />
+                启动后自动开启麦克风</label
+              ><br />
+              <label
+                >启动语音模式
+                <select id="startupVoiceMode">
+                  <option value="continuous">持续对话（无需重复唤醒）</option>
+                  <option value="wake">唤醒监听（说“李维斯”呼出）</option>
+                </select></label
+              ><br />
+            </div>
+
+            <details class="settings-group" open="">
+              <summary>语音资源与云端服务</summary>
+              <label
+                >唤醒引擎
+                <select id="wakeEngine">
+                  <option value="auto">自动（优先快速唤醒）</option>
+                  <option value="sherpa">轻量模型（快速唤醒）</option>
+                  <option value="legacy">原 FunASR</option>
+                </select></label
+              ><label
+                >空闲卸载秒数
+                <input
+                  id="asrIdleSeconds"
+                  type="number"
+                  min="30"
+                  max="3600"
+                  value="120" /></label
+              ><select id="localAsrModel">
+                <option value="paraformer-zh">Paraformer 中文</option>
+                <option value="iic/SenseVoiceSmall">
+                  SenseVoiceSmall
+                </option></select
+              ><button id="voiceRuntimeSave">应用本地模型配置</button
+              ><button id="voiceRuntimeCheck">查看资源状态</button>
+              <label
+                >识别
+                <select id="asrMode">
+                  <option value="local">本地</option>
+                  <option value="cloud">兼容云端</option>
+                </select></label
+              ><label
+                >播报
+                <select id="ttsMode">
+                  <option value="local">Edge TTS</option>
+                  <option value="cloud">兼容云端</option>
+                </select></label
+              >
+              <p>
+                云端服务须提供 /audio/transcriptions 和 /audio/speech；唤醒与
+                VAD 仍在本机。
+              </p>
+              <input
+                id="voiceCloudBase"
+                placeholder="兼容语音 API 地址 /v1"
+              /><input
+                id="voiceCloudKey"
+                type="password"
+                placeholder="Key；留空保留"
+              /><input
+                id="voiceCloudAsr"
+                value="whisper-1"
+                aria-label="云端 ASR 模型"
+              /><input
+                id="voiceCloudTts"
+                value="tts-1"
+                aria-label="云端 TTS 模型"
+              /><input
+                id="voiceCloudVoice"
+                value="alloy"
+                aria-label="云端声音"
+              /><button id="voiceProfileSave">保存语音服务</button>
+              <p id="voiceProfileStatus" role="status"></p>
+            </details>
+          </section>
+          <section data-settings-page="vision" hidden="">
+            <h2>视觉与手势</h2>
+            <label
+              ><input id="autoCamera" type="checkbox" checked="" />
+              启动后自动开启摄像头</label
+            >
+            <div class="settings-group camera-settings">
+              <p id="cameraAIStatus" role="status">
+                本地摄像头预览；配置视觉 API 后自动观察并主动搭话。
+              </p>
+              <p id="gestureStatus" role="status">
+                开启后：手掌暂停播报，握拳隐藏桌宠。
+              </p>
+              <label
+                >手势运行方式
+                <select id="gestureDelegate">
+                  <option value="AUTO">自动选择</option>
+                  <option value="CPU">CPU（显卡识别异常时使用）</option>
+                </select></label
+              >
+              <label
+                >检测阈值
+                <select id="gestureConfidence">
+                  <option value="0.45">正常</option>
+                  <option value="0.3">提高灵敏度</option>
+                  <option value="0.65">减少误检</option>
+                </select></label
+              >
+              <button id="restartGesturesBtn">应用并重启手势</button>
+              <button id="stopCameraBtn">关闭摄像头</button>
+              <button id="startCameraSettings">开启摄像头</button>
+            </div>
+            <div class="settings-group" id="visionSettingsGroup">
+              <label
+                ><input id="visionEnabled" type="checkbox" checked="" />
+                视觉理解：自动观察并主动搭话、每轮对话附当前画面（发送给视觉服务商）</label
+              >
+              <div class="settings-label">
+                视觉 API 地址（从百炼控制台复制，需匹配 Key 所属地域）
+              </div>
+              <input
+                id="visionApiBaseUrl"
+                class="settings-input"
+                placeholder="控制台中的兼容 API 地址，以 /v1 结尾"
+              />
+              <div class="settings-label">视觉 API Key（阿里云百炼）</div>
+              <input
+                id="visionApiKey"
+                class="settings-input"
+                type="password"
+                placeholder="填写本机，不要分享 Key"
+              />
+              <div class="settings-label">视觉模型</div>
+              <input
+                id="visionModelName"
+                class="settings-input"
+                value="qwen3-vl-plus"
+              />
+            </div>
+            <details class="settings-group" open="">
+              <h3>自定义手势</h3>
+              <p>在独立工作室录制，再为手势命名并分配动作。</p>
+              <button id="gestureRecordNew">录制新手势</button>
+              <p id="gestureRecordStatus" role="status"></p>
+              <div id="customGestureList"></div>
+            </details>
+            <details class="settings-group" open="">
+              <summary>预设手势动作</summary>
+              <div id="gestureActions"></div>
+            </details>
+          </section>
+          <section data-settings-page="browser" hidden="">
+            <h2>网页</h2>
+            <p class="muted">Lewis 使用内置浏览器展示它正在访问的网页。</p>
+            <div class="settings-group">
+              <label
+                ><input
+                  id="browserAutoReveal"
+                  type="checkbox"
+                  checked=""
+                />执行网页任务时自动展开浏览器</label
+              ><label
+                ><input
+                  id="browserMuted"
+                  type="checkbox"
+                  checked=""
+                />默认静音网页</label
+              ><label
+                ><input
+                  id="browserShowActivity"
+                  type="checkbox"
+                />默认展开操作记录与读取内容</label
+              >
+            </div>
+            <div class="settings-group">
+              <h3>浏览方式</h3>
+              <p>
+                在网页顶部输入网址，或让 Lewis
+                搜索、打开和读取网页。更多操作可开启声音，也可在系统浏览器中打开。
+              </p>
+              <button id="openBrowserSettings">展开内置浏览器</button>
+            </div>
+          </section>
+          <section data-settings-page="wechat" hidden="">
+            <h2>微信</h2>
+            <p class="wechat-summary" id="wechatSettingsStatus" role="status">
+              自动检测电脑微信连接
+            </p>
+            <details open="">
+              <summary>微信后台读取、历史查询和新消息分析</summary>
+              <p>
+                连接 TraceMemo
+                后，读取历史无需打开目标聊天。图片可交给视觉模型；语音目前仅读取已有转写，文件正文尚不支持。
+              </p>
+              <p>
+                <a
+                  href="https://github.com/Wxw-Gu/TraceMemo/releases"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >TraceMemo 下载</a
+                >
+                ·
+                <a
+                  href="https://github.com/Wxw-Gu/TraceMemo/blob/main/docs/user-guide/getting-started.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >首次连接说明</a
+                >
+              </p>
+              <input
+                id="wechatReaderBase"
+                value="http://127.0.0.1:6131"
+                aria-label="本机微信数据服务地址"
+              />
+              <input
+                id="wechatReaderToken"
+                type="password"
+                autocomplete="off"
+                placeholder="从 API Center 复制 Token"
+                aria-label="微信数据服务 Token"
+              />
+              <p>
+                <label
+                  ><input id="wechatMonitor" type="checkbox" checked="" />
+                  持续轮询新消息</label
+                >
+                <label
+                  ><input id="wechatAutoAnalyze" type="checkbox" checked="" />
+                  自动交给已配置的云端模型分析</label
+                >
+              </p>
+              <button id="wechatReaderSave">保存后台读取设置</button
+              ><button id="wechatReaderCheck">检查连接并加载会话</button>
+              <p id="wechatReaderStatus" role="status"></p>
+              <select
+                id="wechatHistoryTarget"
+                aria-label="历史查询会话"
+              ></select>
+              <input
+                id="wechatHistoryStart"
+                type="date"
+                aria-label="历史开始日期"
+              /><input
+                id="wechatHistoryEnd"
+                type="date"
+                aria-label="历史结束日期"
+              />
+              <button id="wechatHistoryRead">读取数据库历史</button>
+              <pre
+                id="wechatHistoryResult"
+                style="white-space: pre-wrap; max-height: 240px; overflow: auto"
+              ></pre>
+              <select id="wechatHistoryImage" aria-label="历史中的图片"></select
+              ><input
+                id="wechatImageQuestion"
+                placeholder="图片问题，例如这张截图写了什么"
+              />
+              <button id="wechatImageRead" disabled="">
+                让 AI 查看所选图片
+              </button>
+              <pre id="wechatImageResult" style="white-space: pre-wrap"></pre>
+              <pre
+                id="wechatAnalysis"
+                style="white-space: pre-wrap; max-height: 240px; overflow: auto"
+              ></pre>
+            </details>
+            <details>
+              <summary>官方微信通知适配器</summary>
+              <p>
+                企业微信和公众号使用各自的用户 ID，不能读取个人微信好友历史。
+              </p>
+              <label
+                ><input id="wechatConfirmOfficial" type="checkbox" />
+                官方通知发送前确认</label
+              >
+              <input id="wechatCorpId" placeholder="企业 CorpId" /><input
+                id="wechatCorpSecret"
+                type="password"
+                placeholder="企业 Secret；留空保留"
+              /><input id="wechatAgentId" placeholder="AgentId" />
+              <input id="wechatPublicId" placeholder="公众号 AppId" /><input
+                id="wechatPublicSecret"
+                type="password"
+                placeholder="公众号 Secret；留空保留"
+              />
+              <button id="wechatAdaptersSave">保存适配器</button
+              ><select id="wechatOfficialAdapter">
+                <option value="enterprise">企业微信</option>
+                <option value="publicAccount">公众号客服</option></select
+              ><input
+                id="wechatOfficialRecipient"
+                placeholder="单个官方收件人 ID"
+              /><textarea
+                id="wechatOfficialText"
+                placeholder="通知正文"
+              ></textarea
+              ><button id="wechatOfficialSend">发送官方通知</button>
+              <p id="wechatAdapterStatus" role="status"></p>
+            </details>
+          </section>
+          <section data-settings-page="permissions" hidden="">
+            <h2>权限</h2>
+            <div class="settings-group">
+              <label
+                ><input id="allowWeb" type="checkbox" checked="" />
+                联网：搜索和读取公开网页</label
+              ><br />
+              <label
+                ><input id="allowComputer" type="checkbox" checked="" />
+                电脑：打开程序和网站、调整音量</label
+              ><br />
+              <label
+                ><input id="allowWechat" type="checkbox" checked="" />
+                微信：读取聊天、后台历史与新消息分析、按任务撰写并发送（同时需要电脑权限）</label
+              ><br />
+              <p>
+                直接读取显示在本地对话；让 AI
+                总结微信聊天时，读取结果会交给当前模型服务商。
+              </p>
+              <label
+                ><input id="autoTools" type="checkbox" checked="" />
+                允许模型调用上述已开启的工具</label
+              >
+            </div>
+          </section>
+          <section data-settings-page="data" hidden="">
+            <h2>数据与诊断</h2>
+            <details class="settings-group" open="">
+              <summary>数据与诊断</summary>
+              <a href="/api/data/export" download="">导出对话与记忆</a
+              ><button id="dataBackup">生成数据库备份</button
+              ><input
+                id="dataImportFile"
+                type="file"
+                accept="application/json"
+              /><button id="dataImport">合并导入数据</button
+              ><a href="/api/diagnostics" download="">导出诊断日志</a>
+              <p id="dataStatus" role="status"></p>
+              <p>诊断仅保存在本机，不自动上传。导入不会执行历史任务。</p>
+            </details>
+          </section>
+          <section data-settings-page="updates" hidden="">
+            <h2>应用更新</h2>
+            <details class="settings-group" open="">
+              <summary>应用更新</summary>
+              <input
+                id="updateURL"
+                placeholder="实际发布服务器 HTTPS 目录地址"
+              /><select id="updateChannel">
+                <option value="stable">稳定版</option>
+                <option value="beta">测试版</option></select
+              ><label
+                ><input id="updateAutoCheck" type="checkbox" checked="" />
+                自动检查</label
+              ><button id="updateSave">保存发布源</button
+              ><button id="updateCheck">检查更新</button
+              ><button id="updateDownload">下载更新</button
+              ><button id="updateInstall">安装并重启</button
+              ><select
+                id="updateRollbackVersion"
+                aria-label="可回滚版本"
+              ></select
+              ><button id="updateRollback">回滚已缓存版本</button>
+              <p id="updateStatus" role="status"></p>
+              <pre id="updateNotes"></pre>
+            </details>
+          </section>
+        </div>
+      </div>
+      <footer class="settings-footer">
+        <span>配置仅保存在本机</span
+        ><button class="settings-btn" id="saveSettingsBtn">保存设置</button>
+      </footer>
+    </div>
+    <script src="/js/appearance.js?v=1.7.6"></script>
+    <script src="/vendor/fingerpose/fingerpose.js"></script>
+
+    <script src="/js/interface.js?v=1.7.6"></script>
+    <script src="/js/panel-folds.js?v=1.7.6"></script>
+    <script src="/js/http.js?v=1.7.6"></script>
+    <script src="/js/friendly-errors.js?v=1.7.6"></script>
+    <script src="/js/voice.js?v=1.7.6"></script>
+    <script src="/js/wechat-command.js?v=1.7.6"></script>
+    <script src="/js/website-command.js?v=1.7.6"></script>
+    <script src="/js/desktop-command.js?v=1.7.6"></script>
+    <script src="/js/web-panel.js?v=1.7.6"></script>
+    <script src="/js/vision-config.js?v=1.7.6"></script>
+    <script src="/js/gesture-actions.js?v=1.7.6"></script>
+    <script src="/js/custom-gestures.js?v=1.7.6"></script>
+    <script src="/js/gesture-recorder.js?v=1.7.6"></script>
+    <script src="/js/attachments.js?v=1.7.6"></script>
+    <script src="/js/plugins.js?v=1.7.6"></script>
+    <script src="/js/memories.js?v=1.7.6"></script>
+    <script src="/js/tasks.js?v=1.7.6"></script>
+    <script src="/js/diagnostics.js?v=1.7.6"></script>
+    <script src="/js/updates.js?v=1.7.6"></script>
+    <script src="/js/voice-profile.js?v=1.7.6"></script>
+    <script src="/js/speech.js?v=1.7.6"></script>
+    <script src="/js/app.js?v=1.7.6"></script>
+    <script src="/js/vision-observer.js?v=1.7.6"></script>
+    <script src="/js/wechat-reader.js?v=1.7.6"></script>
+    <script src="/js/wechat-adapters.js?v=1.7.6"></script>
+    <script src="/js/gestures.js?v=1.7.6"></script>
+    <script type="module" src="/js/vision.js?v=1.7.6"></script>
+
+    <script src="/js/wechat-auto.js?v=1.7.6"></script>
+  </body>
+</html>

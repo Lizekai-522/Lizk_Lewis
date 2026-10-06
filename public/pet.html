@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>李维斯 - 桌宠</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* 桌宠容器 */
+      .pet-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 34px;
+        pointer-events: none;
+        position: relative;
+      }
+
+      /* 头像主体 */
+      .pet-avatar {
+        width: 76px;
+        height: 76px;
+        flex-shrink: 0;
+        pointer-events: auto;
+        cursor: grab;
+        touch-action: none;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00ffff, #0077aa);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        animation: float 4s ease-in-out infinite;
+        z-index: 10;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      /* 头像内部 - 眼睛 */
+      .pet-eyes {
+        display: flex;
+        gap: 18px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .pet-eye {
+        width: 14px;
+        height: 20px;
+        background: #001122;
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        animation: blink 4s ease-in-out infinite;
+      }
+
+      .pet-eye:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+
+      @keyframes blink {
+        0%,
+        45%,
+        55%,
+        100% {
+          transform: scaleY(1);
+        }
+        50% {
+          transform: scaleY(0.1);
+        }
+      }
+
+      .pet-eye::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 5px;
+        height: 5px;
+        background: #00ffff;
+        border-radius: 50%;
+      }
+
+      /* 嘴巴 */
+      .pet-mouth {
+        position: absolute;
+        bottom: 28px;
+        width: 16px;
+        height: 6px;
+        border-bottom: 2px solid #001122;
+        border-radius: 0 0 10px 10px;
+      }
+
+      /* 状态：聆听 */
+      .pet-container.listening .pet-avatar {
+        animation: listening-pulse 1.5s ease-in-out infinite;
+      }
+
+      @keyframes listening-pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow:
+            0 0 50px rgba(0, 255, 255, 0.8),
+            0 0 80px rgba(0, 255, 255, 0.4);
+          transform: scale(1.05);
+        }
+      }
+
+      /* 声波环 - 聆听状态 */
+      .sound-wave {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .pet-container.listening .sound-wave {
+        opacity: 1;
+      }
+      .sound-wave {
+        top: auto;
+        bottom: 95px;
+      }
+
+      .wave-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 2px solid #00ffff;
+        animation: wave-expand 2s ease-out infinite;
+      }
+
+      .wave-ring:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .wave-ring:nth-child(2) {
+        animation-delay: 0.5s;
+      }
+      .wave-ring:nth-child(3) {
+        animation-delay: 1s;
+      }
+
+      @keyframes wave-expand {
+        0% {
+          width: 100px;
+          height: 100px;
+          opacity: 0.8;
+        }
+        100% {
+          width: 200px;
+          height: 200px;
+          opacity: 0;
+        }
+      }
+
+      /* 状态：思考中 */
+      .pet-container.thinking .pet-avatar {
+        animation: thinking-spin 2s linear infinite;
+      }
+
+      @keyframes thinking-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .thinking-ring {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        border-top-color: #00ffff;
+        border-right-color: #00ffff;
+        opacity: 0;
+        animation: thinking-ring 1.5s linear infinite;
+      }
+
+      .pet-container.thinking .thinking-ring {
+        opacity: 1;
+      }
+      .thinking-ring {
+        top: auto;
+        bottom: 35px;
+        left: 50%;
+        right: auto;
+        width: 120px;
+        height: 120px;
+        margin-left: -60px;
+        pointer-events: none;
+      }
+      .pet-mouth {
+        bottom: 16px;
+      }
+
+      @keyframes thinking-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* 状态：说话 */
+      .pet-container.speaking .pet-mouth {
+        animation: mouth-move 0.3s ease-in-out infinite alternate;
+      }
+
+      @keyframes mouth-move {
+        0% {
+          height: 4px;
+        }
+        100% {
+          height: 10px;
+        }
+      }
+
+      /* 状态：开心 */
+      .pet-container.happy .pet-avatar {
+        animation: happy-jump 0.6s ease-out;
+      }
+
+      @keyframes happy-jump {
+        0% {
+          transform: translateY(0) scale(1);
+        }
+        30% {
+          transform: translateY(-20px) scale(1.1);
+        }
+        60% {
+          transform: translateY(0) scale(0.95);
+        }
+        100% {
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* 星星粒子 */
+      .sparkles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        opacity: 0;
+      }
+
+      .pet-container.happy .sparkles {
+        opacity: 1;
+        animation: sparkle-fade 1s ease-out;
+      }
+
+      @keyframes sparkle-fade {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .sparkle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: #00ffff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #00ffff;
+        animation: sparkle-fly 1s ease-out forwards;
+      }
+
+      @keyframes sparkle-fly {
+        0% {
+          transform: translate(0, 0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--tx), var(--ty)) scale(0);
+          opacity: 0;
+        }
+      }
+
+      /* 底部名字 */
+      .pet-name {
+        margin-top: 12px;
+        font-size: 11px;
+        color: rgba(0, 255, 255, 0.8);
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .pet-container:hover .pet-name {
+        opacity: 1;
+      }
+
+      /* 对话气泡 */
+      .speech-bubble {
+        position: absolute;
+        top: auto;
+        bottom: 142px;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        background: rgba(10, 20, 35, 0.95);
+        border: 1px solid rgba(0, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: #e0f7ff;
+        white-space: nowrap;
+        transform-origin: bottom center;
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        pointer-events: none;
+        backdrop-filter: blur(10px);
+        width: 220px;
+        max-width: calc(100vw - 16px);
+        max-height: 105px;
+        overflow: hidden;
+        white-space: normal;
+        word-wrap: break-word;
+      }
+
+      .speech-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 10px;
+        height: 10px;
+        background: rgba(10, 20, 35, 0.95);
+        border-right: 1px solid rgba(0, 255, 255, 0.3);
+        border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+      }
+
+      .speech-bubble.show {
+        transform: translateX(-50%) scale(1);
+      }
+
+      /* 状态指示器 */
+      .status-indicator {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #00ff88;
+        box-shadow: 0 0 8px #00ff88;
+        animation: status-blink 2s ease-in-out infinite;
+        z-index: 20;
+      }
+
+      @keyframes status-blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* 右键菜单 */
+      .context-menu {
+        position: fixed;
+        background: rgba(10, 20, 35, 0.95);
+        border: 1px solid rgba(0, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 6px 0;
+        min-width: 120px;
+        display: none;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
+
+      .context-menu.show {
+        display: block;
+      }
+
+      .menu-item {
+        padding: 8px 16px;
+        font-size: 13px;
+        color: #e0f7ff;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .menu-item:hover {
+        background: rgba(0, 255, 255, 0.15);
+        color: #00ffff;
+      }
+
+      .menu-divider {
+        height: 1px;
+        background: rgba(0, 255, 255, 0.2);
+        margin: 4px 0;
+      }
+      .pet-avatar {
+        position: relative;
+      }
+      .pet-avatar img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .custom-avatar .pet-eyes,
+      .custom-avatar .pet-mouth {
+        visibility: hidden;
+      }
+      .pet-avatar.dragging {
+        animation: none !important;
+        cursor: grabbing;
+      }
+      .pet-avatar img {
+        pointer-events: none;
+        -webkit-user-drag: none;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pet-container" id="pet">
+      <div class="status-indicator"></div>
+
+      <!-- 对话气泡 -->
+      <div class="speech-bubble" id="speechBubble">你好，主人</div>
+
+      <!-- 声波环 -->
+      <div class="sound-wave">
+        <div class="wave-ring"></div>
+        <div class="wave-ring"></div>
+        <div class="wave-ring"></div>
+      </div>
+
+      <!-- 思考环 -->
+      <div class="thinking-ring"></div>
+
+      <!-- 星星粒子 -->
+      <div class="sparkles" id="sparkles"></div>
+
+      <!-- 头像主体 -->
+      <div class="pet-avatar">
+        <div class="pet-eyes">
+          <div class="pet-eye"></div>
+          <div class="pet-eye"></div>
+        </div>
+        <div class="pet-mouth"></div>
+      </div>
+
+      <div class="pet-name">L E W I S</div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu">
+      <div class="menu-item" onclick="openMain()">💬 打开主界面</div>
+      <div class="menu-item" onclick="toggleListening()">🎤 开始聆听</div>
+      <div class="menu-divider"></div>
+      <div class="menu-item" onclick="playHappy()">😄 逗我开心</div>
+      <div class="menu-divider"></div>
+      <div class="menu-item" onclick="hidePet()">👋 隐藏</div>
+    </div>
+
+    <script>
+      // ============================================
+      //  李维斯桌宠 - 交互逻辑
+      // ============================================
+
+      const pet = document.getElementById("pet");
+      const speechBubble = document.getElementById("speechBubble");
+      const petAvatar = pet.querySelector(".pet-avatar");
+      const contextMenu = document.getElementById("contextMenu");
+      let currentState = "idle"; // idle, listening, thinking, speaking, happy
+
+      // 拖拽
+      let isDragging = false;
+      let startX, startY, startLeft, startTop;
+
+      petAvatar.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return; // 只响应左键
+        isDragging = true;
+        e.preventDefault();
+        closeMenu();
+        petAvatar.classList.add("dragging");
+        try {
+          petAvatar.setPointerCapture?.(e.pointerId);
+        } catch {}
+        window.electronAPI?.petDragging(true);
+        startX = e.screenX;
+        startY = e.screenY;
+
+        // 在主窗口中移动窗口位置（如果通过Electron的话）
+        // 网页版的话移动元素本身
+        document.addEventListener("pointermove", onDrag);
+        document.addEventListener("pointerup", stopDrag);
+      });
+
+      function onDrag(e) {
+        if (!isDragging) return;
+        const dx = e.screenX - startX,
+          dy = e.screenY - startY;
+        // Electron main tracks the OS cursor; screen deltas are not accumulated across moved windows.
+        if (!window.electronAPI)
+          pet.style.transform = `translate(${(startLeft || 0) + dx}px, ${(startTop || 0) + dy}px)`;
+      }
+
+      function stopDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        petAvatar.classList.remove("dragging");
+        window.electronAPI?.petDragging(false);
+        document.removeEventListener("pointermove", onDrag);
+        document.removeEventListener("pointerup", stopDrag);
+      }
+      petAvatar.addEventListener("lostpointercapture", stopDrag);
+      petAvatar.addEventListener("pointercancel", stopDrag);
+      window.addEventListener("blur", () => {
+        stopDrag();
+        closeMenu();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+      });
+
+      // 点击打开主界面
+      petAvatar.addEventListener("dblclick", () => {
+        openMain();
+      });
+
+      // 右键菜单
+      petAvatar.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        stopDrag();
+        if (window.electronAPI?.petMenu) {
+          closeMenu();
+          window.electronAPI.petMenu();
+          return;
+        }
+        const menu = document.getElementById("contextMenu");
+        menu.style.left = Math.min(e.clientX, innerWidth - 165) + "px";
+        menu.style.top = Math.min(e.clientY, innerHeight - 210) + "px";
+        menu.classList.add("show");
+        reportHitRegions();
+      });
+
+      function closeMenu() {
+        document.getElementById("contextMenu").classList.remove("show");
+        reportHitRegions();
+      }
+      document.addEventListener("click", closeMenu);
+      document.addEventListener("pointerleave", () => {
+        if (!isDragging) closeMenu();
+      });
+
+      // 设置状态
+      function setState(state) {
+        pet.classList.remove("listening", "thinking", "speaking", "happy");
+        if (state && state !== "idle") {
+          pet.classList.add(state);
+        }
+        currentState = state;
+      }
+
+      // 显示气泡消息
+      function say(text, duration = 3000) {
+        speechBubble.textContent = text;
+        speechBubble.classList.add("show");
+        setState("speaking");
+
+        clearTimeout(say._timer);
+        say._timer = setTimeout(() => {
+          speechBubble.classList.remove("show");
+          setState("idle");
+        }, duration);
+      }
+
+      // 聆听状态
+      function toggleListening() {
+        if (window.electronAPI) window.electronAPI.publish({ type: "listen" });
+        else petChannel?.postMessage({ type: "listen" });
+        say("请在主界面查看麦克风状态", 2000);
+      }
+
+      // 开心动画
+      function playHappy() {
+        setState("happy");
+
+        // 生成星星
+        const sparkles = document.getElementById("sparkles");
+        sparkles.innerHTML = "";
+        for (let i = 0; i < 12; i++) {
+          const s = document.createElement("div");
+          s.className = "sparkle";
+          const angle = (i / 12) * Math.PI * 2;
+          const distance = 60 + Math.random() * 40;
+          s.style.setProperty("--tx", Math.cos(angle) * distance + "px");
+          s.style.setProperty("--ty", Math.sin(angle) * distance + "px");
+          s.style.left = "50%";
+          s.style.top = "50%";
+          s.style.animationDelay = i * 0.03 + "s";
+          sparkles.appendChild(s);
+        }
+
+        setTimeout(() => setState("idle"), 600);
+      }
+
+      // 打开主界面
+      function openMain() {
+        if (window.electronAPI) window.electronAPI.openMain();
+        else window.open("/", "lewis-main");
+      }
+      function hidePet() {
+        if (window.electronAPI) window.electronAPI.hidePet();
+        else pet.hidden = true;
+      }
+
+      // 初始化
+      setTimeout(() => {
+        say("你好，主人，我是李维斯", 3000);
+      }, 500);
+
+      // 与主界面共享实际状态和头像；不再模拟识别结果。
+      const petChannel =
+        !window.electronAPI && typeof BroadcastChannel !== "undefined"
+          ? new BroadcastChannel("lewis-pet")
+          : null;
+      function updateAvatar(url) {
+        const avatar = document.querySelector(".pet-avatar");
+        let image = avatar.querySelector("img");
+        if (!image) {
+          image = document.createElement("img");
+          avatar.appendChild(image);
+        }
+        const valid =
+          typeof url === "string" &&
+          /^data:image\/(png|jpeg|webp);base64,/.test(url);
+        image.hidden = !valid;
+        if (valid) image.src = url;
+        avatar.classList.toggle("custom-avatar", valid);
+      }
+      function receive(data) {
+        if (data?.type === "pet-reset") {
+          stopDrag();
+          closeMenu();
+        }
+        if (data?.type === "pet-happy") playHappy();
+        if (data?.type === "wake") {
+          pet.hidden = false;
+          say("我在，您说。", 2000);
+          setState("listening");
+        }
+        if (data?.type === "state") {
+          clearTimeout(say._timer);
+          speechBubble.classList.remove("show");
+          setState(data.state);
+        }
+        if (data?.type === "say") say(data.text, data.duration);
+        if (data?.type === "avatar") updateAvatar(data.url);
+        if (data?.type === "hide") hidePet();
+      }
+      if (petChannel) {
+        petChannel.onmessage = (event) => receive(event.data);
+        petChannel.postMessage({ type: "ready" });
+      }
+      window.electronAPI?.onMessage(receive);
+      window.electronAPI?.publish({ type: "ready" });
+      try {
+        updateAvatar(
+          JSON.parse(localStorage.getItem("lewis_settings") || "{}").avatar,
+        );
+      } catch {}
+      window.addEventListener("message", (event) => {
+        if (event.origin === location.origin) receive(event.data);
+      });
+      // 只把头像圆形及已展开菜单交给主进程；气泡、名字、光效与空白均可穿透。
+      let lastHitRegions = "";
+      function reportHitRegions() {
+        if (!window.electronAPI?.petHitRegions) return;
+        const readRect = (element, kind) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            kind,
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height,
+          };
+        };
+        const rect = petAvatar.getBoundingClientRect();
+        const transform = getComputedStyle(petAvatar).transform;
+        const matrix = /^matrix\(/.test(transform)
+          ? transform.slice(7, -1).split(",").map(Number)
+          : [1, 0];
+        const diameter =
+          (petAvatar.offsetWidth || rect.width) *
+          (Math.hypot(matrix[0], matrix[1]) || 1);
+        const regions = [
+          {
+            kind: "circle",
+            x: rect.x + rect.width / 2 - diameter / 2,
+            y: rect.y + rect.height / 2 - diameter / 2,
+            width: diameter,
+            height: diameter,
+          },
+        ];
+        if (contextMenu.classList.contains("show"))
+          regions.push(readRect(contextMenu, "rect"));
+        const signature = JSON.stringify(regions);
+        if (signature !== lastHitRegions) {
+          lastHitRegions = signature;
+          window.electronAPI.petHitRegions(regions);
+        }
+      }
+      const hitTimer = window.electronAPI
+        ? setInterval(reportHitRegions, 100)
+        : null;
+      reportHitRegions();
+      window.addEventListener("pagehide", () => {
+        clearInterval(hitTimer);
+        stopDrag();
+      });
+    </script>
+  </body>
+</html>

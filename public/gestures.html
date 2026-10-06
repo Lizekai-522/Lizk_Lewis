@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="tech">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Lewis · 手势工作室</title>
+    <link rel="stylesheet" href="/vendor/icons/regular/style.css" />
+    <link rel="stylesheet" href="/css/lewis.css" />
+    <link rel="stylesheet" href="/css/workspace.css" />
+    <link rel="stylesheet" href="/css/gestures.css" />
+    <link rel="stylesheet" href="/css/tech.css?v=1.7.6" />
+  </head>
+  <body class="gesture-studio">
+    <header class="desktop-titlebar" hidden="">
+      <span>Lewis · 手势工作室</span>
+    </header>
+    <main>
+      <header class="studio-heading">
+        <div>
+          <span class="eyebrow">LEWIS / 本机录制</span>
+          <h1>手势工作室</h1>
+        </div>
+        <button id="studioClose">返回 Lewis</button>
+      </header>
+      <ol class="studio-steps">
+        <li id="stepCapture" aria-current="step">1 录制手势</li>
+        <li id="stepConfigure">2 命名与指令</li>
+      </ol>
+      <section class="studio-layout">
+        <div class="studio-preview">
+          <video id="studioVideo" autoplay="" muted="" playsinline=""></video
+          ><canvas id="studioOverlay"></canvas>
+          <div id="studioCountdown" hidden=""></div>
+          <p id="studioCameraStatus" role="status">点击开启摄像头准备录制</p>
+        </div>
+        <div class="studio-controls">
+          <section id="captureStage">
+            <h2>先录制，再定义它能做什么</h2>
+            <p>
+              将一只完整的手放入画面。准备后倒计时 3 秒，再采集 3 秒关键点。
+            </p>
+            <label
+              >录制类型<select id="studioMode">
+                <option value="pose">保持一个手形</option>
+                <option value="motion">移动手腕的短动作</option>
+              </select></label
+            ><button id="studioPrepare">开启摄像头</button
+            ><button id="studioRecord" disabled="">开始录制</button
+            ><button id="studioCancel" hidden="">取消</button>
+          </section>
+          <form id="configureStage" hidden="">
+            <h2>让这个手势做什么？</h2>
+            <p id="studioCaptureSummary"></p>
+            <label
+              >手势名称<input
+                id="studioName"
+                maxlength="40"
+                required=""
+                placeholder="例如：晚安" /></label
+            ><label
+              >动作<select id="studioAction">
+                <option value="command">执行任务指令</option>
+                <option value="stop-speech">停止播报</option>
+                <option value="hide-pet">隐藏桌宠</option>
+                <option value="show-pet">显示桌宠</option>
+                <option value="pause-mic">暂停麦克风</option>
+                <option value="resume-mic">恢复麦克风</option>
+              </select></label
+            ><label id="studioCommandLabel"
+              >任务指令<textarea
+                id="studioCommand"
+                maxlength="500"
+                placeholder="例如：搜索今天的科技新闻"
+              ></textarea></label
+            ><button id="studioApply" type="submit">保存并应用</button
+            ><button id="studioAgain" type="button">重新录制</button>
+          </form>
+          <p id="studioStatus" role="status" aria-live="polite"></p>
+          <small
+            >仅保存手部关键点，视频不上传。识别引擎：MediaPipe +
+            Fingerpose（MIT）。</small
+          >
+        </div>
+      </section>
+    </main>
+    <script src="/js/appearance.js?v=1.7.6"></script>
+    <script src="/vendor/fingerpose/fingerpose.js"></script>
+    <script src="/js/custom-gestures.js"></script>
+    <script src="/js/gesture-studio.js"></script>
+  </body>
+</html>
